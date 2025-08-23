@@ -115,7 +115,7 @@ def classify_future_sentiment(forecast):
 
 product_classification = {p: classify_future_sentiment(forecast_results[p]) for p in products}
 
-# 10) Examples - Plot sentiment and forecast for top 3 products by review count
+# 10) Plot sentiment and forecast for top 3 products by review count
 top_products = weekly_product.groupby('asin')['review_count'].sum().sort_values(ascending=False).head(3).index
 
 for product in top_products:
@@ -124,9 +124,15 @@ for product in top_products:
     forecast = forecast_results[product]
 
     plt.figure(figsize=(12,6))
-    plt.plot(sentiment_series.index, sentiment_series.values, label='Avg Sentiment (VADER)')
+
+    # Convert index to numpy datetime array
+    x_index = sentiment_series.index.to_numpy()
+    plt.plot(x_index, sentiment_series.values, label='Avg Sentiment (VADER)')
+
     if not forecast.empty:
-        plt.plot(forecast.index, forecast.values, label='Forecast Sentiment', linestyle='--')
+        x_forecast = forecast.index.to_numpy()
+        plt.plot(x_forecast, forecast.values, label='Forecast Sentiment', linestyle='--')
+
     plt.title(f'Sentiment Trend and Forecast for Product {product}\nClassification: {product_classification[product]}')
     plt.xlabel('Date')
     plt.ylabel('Sentiment Score (VADER)')

@@ -21,14 +21,20 @@ df['cleaned_text'] = (df['reviewText'].fillna("") + " " + df['summary'].fillna("
 
 # 3) Detect language and translate Tamil → English
 translator = Translator()
+printed_demo = False  # Flag to print only once
 
 def detect_and_translate(text):
+    global printed_demo
     try:
         if not text.strip():
             return ""
         lang = detect(text)
         if lang == 'ta':
-            return translator.translate(text, src='ta', dest='en').text
+            translated = translator.translate(text, src='ta', dest='en').text
+            if not printed_demo:
+                print(f"Tamil Review: {text}\n→ English: {translated}\n")
+                printed_demo = True
+            return translated
         else:
             return text
     except:
@@ -54,3 +60,4 @@ df['fnet_embedding'] = df['en_text'].apply(lambda x: fnet_embedding(x).numpy())
 # 5) Save processed data for later use
 df.to_pickle("processed_reviews.pkl")
 print("✅ Training/Preprocessing done. Saved to processed_reviews.pkl")
+

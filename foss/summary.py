@@ -2,41 +2,40 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+# summary.py
+
 def analyze_series(series, label="Data"):
-    """Return summary for a sentiment series"""
+    """Return summary for a sentiment series as a dictionary (JSON safe)."""
     if len(series) == 0:
-        return f"===== {label} Sentiment Summary =====\nNo data available."
+        return {"message": f"No data available for {label}"}
 
-    avg_val = series.mean()
-    last_val = series.iloc[-1]
-    min_val, min_date = series.min(), series.idxmin()
-    max_val, max_date = series.max(), series.idxmax()
+    series = pd.Series(series)  # ensure pandas Series
+    avg_val = float(series.mean())
+    last_val = float(series.iloc[-1])
+    min_val, min_date = float(series.min()), str(series.idxmin())
+    max_val, max_date = float(series.max()), str(series.idxmax())
 
-    # Trend detection (based on slope first→last)
+    # Trend detection
+    trend = "Stable"
     if len(series) > 1:
         slope = series.iloc[-1] - series.iloc[0]
         if slope > 0:
             trend = "Increasing"
         elif slope < 0:
             trend = "Decreasing"
-        else:
-            trend = "Stable"
-    else:
-        trend = "Stable"
 
     # Prediction based on last value
     prediction = "Likely Positive" if last_val > 0 else "Likely Negative"
 
-    summary = f"""
-===== {label} Sentiment Summary =====
-Average Sentiment: {avg_val:.2f}
-Latest Sentiment: {last_val:.2f}
-Minimum Sentiment: {min_val:.2f} on {min_date.date()}
-Maximum Sentiment: {max_val:.2f} on {max_date.date()}
-Trend: {trend}
-Prediction: {prediction}
-"""
-    return summary
+    return {
+        "label": label,
+        "average": avg_val,
+        "latest": last_val,
+        "min": {"value": min_val, "date": min_date},
+        "max": {"value": max_val, "date": max_date},
+        "trend": trend,
+        "prediction": prediction
+    }
 
 
 def plot_sentiment(product, sentiment_series=None, forecast_dict=None, classification=""):

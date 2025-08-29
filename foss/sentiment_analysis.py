@@ -34,7 +34,7 @@ def label_sentiment(score: float) -> str:
     else:
         return "Neutral"
 
-def compute_sentiment(df: pd.DataFrame, text_column="en_text") -> pd.DataFrame:
+def compute_sentiment(df: pd.DataFrame, text_column="reviewText") -> pd.DataFrame:
     df = df.copy()
     df["vader_score"] = df[text_column].map(vader_sent)
     df["tb_score"] = df[text_column].map(textblob_sent)
@@ -43,7 +43,7 @@ def compute_sentiment(df: pd.DataFrame, text_column="en_text") -> pd.DataFrame:
     df["confidence"] = df["hybrid_score"].apply(lambda s: round(abs(s), 3))
     return df
 
-def get_sentiment_series_all(df: pd.DataFrame, date_column="reviewTime", text_column="en_text", freq='W') -> dict:
+def get_sentiment_series_all(df: pd.DataFrame, date_column="reviewTime", text_column="reviewText", freq='W') -> dict:
     """
     Returns sentiment series for all products.
     

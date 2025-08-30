@@ -9,12 +9,15 @@ function ProductDashboard() {
   const [selectedProduct, setSelectedProduct] = useState("");
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleProductSelect = async (product) => {
     setSelectedProduct(product);
     setSummary(null);
     setError("");
+    setLoading(true);
+
     try {
       const res = await fetch("http://127.0.0.1:5000/product_summary", {
         method: "POST",
@@ -25,7 +28,9 @@ function ProductDashboard() {
       const data = await res.json();
       setSummary(data);
     } catch (err) {
-      setError("Could not fetch summary");
+      setError("❌ Could not fetch summary");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,38 +42,89 @@ function ProductDashboard() {
 
   return (
     <div>
-      <h1>Product Dashboard</h1>
+      <h2>📌 Choose a Product</h2>
 
-      {/* Product Selector */}
-      <div>
+      {/* Product Buttons */}
+      <div className="product-buttons">
         {PRODUCT_OPTIONS.map((product) => (
-          <div key={product}>
-            <input
-              type="radio"
-              id={product}
-              checked={selectedProduct === product}
-              onChange={() => handleProductSelect(product)}
-            />
-            <label htmlFor={product}>{product}</label>
-          </div>
+          <button
+            key={product}
+            className="product-btn"
+            onClick={() => handleProductSelect(product)}
+          >
+            {product}
+          </button>
         ))}
       </div>
 
+      {/* Loading */}
+      {loading && <p>Loading summary…</p>}
+
       {/* Show Summary */}
       {summary && (
-        <div style={{ marginTop: 20, padding: 10, border: "1px solid #ccc", borderRadius: 8 }}>
-          <h2>📊 {summary.product_name} Summary</h2>
-          <p><strong>ASIN:</strong> {summary.asin}</p>
-          <p><strong>Historical:</strong> {JSON.stringify(summary.historical_summary)}</p>
-          <p><strong>Forecast:</strong> {JSON.stringify(summary.forecast_summary)}</p>
-        </div>
-      )}
+  <div
+    style={{
+      marginTop: 20,
+      padding: 20,
+      borderRadius: 10,
+      background: "rgba(255,255,255,0.1)",
+    }}
+  >
+    <h2>📊 {selectedProduct} Summary</h2>
+    <p><strong>ASIN:</strong> {summary.asin}</p>
 
-      {/* Trend Button */}
-      <button onClick={handleShowTrend} disabled={!selectedProduct} style={{ marginTop: 10 }}>
-        Show Trend
-      </button>
+    {/* Historical Table */}
+    <h3>📜 Historical</h3>
+    <table
+      style={{
+        width: "100%",
+        borderCollapse: "collapse",
+        marginBottom: "20px",
+      }}
+    >
+      <tbody>
+        <tr><td><strong>Average</strong></td><td>{summary.historical_summary.average}</td></tr>
+        <tr><td><strong>Latest</strong></td><td>{summary.historical_summary.latest}</td></tr>
+        <tr><td><strong>Max</strong></td><td>{JSON.stringify(summary.historical_summary.max)}</td></tr>
+        <tr><td><strong>Min</strong></td><td>{JSON.stringify(summary.historical_summary.min)}</td></tr>
+        <tr><td><strong>Prediction</strong></td><td>{summary.historical_summary.prediction}</td></tr>
+        <tr><td><strong>Trend</strong></td><td>{summary.historical_summary.trend}</td></tr>
+      </tbody>
+    </table>
 
+    {/* Forecast Table */}
+    <h3>🔮 Forecast</h3>
+    <table
+      style={{
+        width: "100%",
+        borderCollapse: "collapse",
+      }}
+    >
+      <tbody>
+        <tr><td><strong>Average</strong></td><td>{summary.forecast_summary.average}</td></tr>
+        <tr><td><strong>Latest</strong></td><td>{summary.forecast_summary.latest}</td></tr>
+        <tr><td><strong>Max</strong></td><td>{JSON.stringify(summary.forecast_summary.max)}</td></tr>
+        <tr><td><strong>Min</strong></td><td>{JSON.stringify(summary.forecast_summary.min)}</td></tr>
+        <tr><td><strong>Prediction</strong></td><td>{summary.forecast_summary.prediction}</td></tr>
+        <tr><td><strong>Trend</strong></td><td>{summary.forecast_summary.trend}</td></tr>
+      </tbody>
+    </table>
+  </div>
+)}
+
+
+      {/* Show Trend Button */}
+      <div className="actions">
+        <button
+          onClick={handleShowTrend}
+          className="action-btn"
+          disabled={!selectedProduct}
+        >
+          📈 Show Trend
+        </button>
+      </div>
+
+      {/* Error */}
       {error && <div style={{ color: "red", marginTop: 10 }}>{error}</div>}
     </div>
   );

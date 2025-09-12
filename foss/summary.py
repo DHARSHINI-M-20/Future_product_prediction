@@ -147,3 +147,18 @@ if __name__ == "__main__":
 
     df_summary = generate_summary(["A123"], {"A123": forecast_dict}, {"A123": "Positive"}, {"A123": sentiment_series})
     print(df_summary)
+def analyze_classification_results(df_results):
+    """
+    Analyze classification results and return summary stats.
+    """
+    if df_results.empty:
+        return {"message": "No classification results available"}
+
+    acc = (df_results["actual"] == df_results["predicted"]).mean()
+    total = len(df_results)
+    correct = (df_results["actual"] == df_results["predicted"]).sum()
+
+    return {
+        "accuracy": float(acc),
+        "total_samples": int(total),
+    }

@@ -61,3 +61,4 @@ df['fnet_embedding'] = df['en_text'].apply(lambda x: fnet_embedding(x).numpy())
 df.to_pickle("processed_reviews.pkl")
 print("✅ Training/Preprocessing done. Saved to processed_reviews.pkl")
 
+

@@ -117,3 +117,36 @@ def plot_product_forecast_subplots(asin, data_dict, sentiment_series=None, class
         plt.close(fig)
     else:
         plt.show()
+def plot_actual_vs_predicted(df_results):
+    """Plots actual vs predicted sentiment trends over time."""
+    import matplotlib.pyplot as plt
+
+    df_results = df_results.dropna(subset=["reviewTime"])
+    df_results["month"] = df_results["reviewTime"].dt.to_period("M")
+
+    actual_trend = df_results.groupby("month")["actual"].mean()
+    pred_trend = df_results.groupby("month")["predicted"].mean()
+
+    # ---- Graph 1: Actual Sentiment ----
+    plt.figure(figsize=(10,5))
+    plt.plot(actual_trend.index.astype(str), actual_trend.values, marker="o", color="blue", label="Actual Sentiment")
+    plt.title("Actual Sentiment Over Time\nShows how real sentiment changes over months")
+    plt.xlabel("Review Month")
+    plt.ylabel("Sentiment (-1=Neg, 0=Neutral, 1=Pos)")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    # ---- Graph 2: Predicted Sentiment ----
+    plt.figure(figsize=(10,5))
+    plt.plot(pred_trend.index.astype(str), pred_trend.values, marker="o", color="green", label="Predicted Sentiment")
+    plt.title("Predicted Sentiment Over Time\nShows how model predicts sentiment trend")
+    plt.xlabel("Review Month")
+    plt.ylabel("Sentiment (-1=Neg, 0=Neutral, 1=Pos)")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()

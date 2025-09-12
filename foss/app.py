@@ -10,6 +10,7 @@ from forecasting import prepare_weekly_forecast_all
 from sentiment_analysis import get_sentiment_series_all
 from visualization import plot_product_forecast_subplots  # updated version below
 from summary import analyze_series  # unchanged
+from accuracy_check import run_classification
 
 # -----------------------
 # Logging Configuration
@@ -313,6 +314,20 @@ def sentiment():
     except Exception as e:
         log.exception("Error in /sentiment")
         return api_error(str(e), 500)
+       
+@app.route("/classification_accuracy", methods=["GET"])
+def classification_accuracy():
+    try:
+        print("👉 Running classification...")
+        result = run_classification("clean_reviews.csv")
+        print("👉 Classification finished:", result)
+        return jsonify({"status": "ok", "metrics": result}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return api_error(str(e), 500)
+
+
 
 @app.route("/product_summary", methods=["GET", "POST"])
 def product_summary():
